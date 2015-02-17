@@ -17,3 +17,11 @@ html, body {
     width: 100%;
     height: 90%;
 }
+
+.text-info {
+    color: #BBB;
+}
+
+.text-err {
+    color: #E51515;
+}
