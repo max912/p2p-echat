@@ -6,7 +6,6 @@ var RTC = function() {
     this.con = new RTCPeerConnection(cfg, opt);
     this.dc = null;
     
-    this.username = "User";
     this.cipher = new Cipher();
     
     var context = this;
@@ -108,28 +107,10 @@ RTC.prototype.sendMessage = function(text) {
             
     this.cipher.iv = niv;
     
-    var msg = {"user": this.username, "message": txt, "n": nie}
+    var msg = {"user": username, "message": txt, "n": nie}
     
     var moz = !! navigator.mozGetUserMedia;
     var data = (moz && msg.file) ? msg.file : JSON.stringify(msg);
 
     this.dc.send(data);
-};
-
-function getTimestamp() {
-    var totalSec = new Date().getTime() / 1000;
-    var hours = parseInt(totalSec / 3600) % 24;
-    var minutes = parseInt(totalSec / 60) % 60;
-    var seconds = parseInt(totalSec % 60);
-
-    var result = (hours < 10 ? "0" + hours : hours) + ":" +
-                 (minutes < 10 ? "0" + minutes : minutes) + ":" +
-                 (seconds  < 10 ? "0" + seconds : seconds);
-
-    return result;
-};
-
-function print(message, message_type) {
-    document.getElementById("chatlog").innerHTML += "<p class=\"" + message_type + "\">" + "[" + getTimestamp() + "] " + message + "</p>";
-    $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
 };

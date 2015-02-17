@@ -14,33 +14,51 @@
         <script type="text/javascript">
             function copyToClipboard(text) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
-            }
+            };
+  
+            function getTimestamp() {
+                var totalSec = new Date().getTime() / 1000;
+                var hours = parseInt(totalSec / 3600) % 24;
+                var minutes = parseInt(totalSec / 60) % 60;
+                var seconds = parseInt(totalSec % 60);
+
+                var result = (hours < 10 ? "0" + hours : hours) + ":" +
+                             (minutes < 10 ? "0" + minutes : minutes) + ":" +
+                             (seconds  < 10 ? "0" + seconds : seconds);
+
+                return result;
+            };
+
+            function print(message, message_type) {
+                document.getElementById("chatlog").innerHTML += "<p class=\"" + message_type + "\">" + "[" + getTimestamp() + "] " + message + "</p>";
+                $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
+            };
         </script>
         
     </head>
     
     <body>
-
-        <div class="chat panel panel-default">
-            <div class="panel-body">
-                <div id="chatlog"></div>
-                <input id="text" type="text" />
-                <button type="button" class="btn btn-default" id="send">Send</button>
+    
+        <main>
+            <div class="chat panel panel-default">
+                <div class="panel-body">
+                    <div id="chatlog"></div>
+                    <input id="text" type="text" />
+                    <button type="button" class="btn btn-default" id="send">Send</button>
+                </div>
             </div>
-        </div>
-        
-        <div class="username">
-            <label>Set username:</label>
-            <input id="username" type="text" />
-            <button type="button" class="btn btn-default" id="setUsername">Submit</button>
-        </div>
-        
+            
+            <div class="username">
+                <label>Set username:</label>
+                <input id="username" type="text" />
+                <button type="button" class="btn btn-default" id="setUsername">Submit</button>
+            </div>
+        </main>
         
         <div class="modal fade" id="startModal">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Start here</h4>
                     </div>
                     <div class="modal-body">
@@ -48,11 +66,11 @@
                         <div class="remote offer">
                             <label>Remote Offer:</label>
                             <input id="remoteOffer" type="text" />
-                            <button type="button" class="btn btn-default" id="submitOffer" data-dismiss="modal" data-toggle="modal" data-target="#answerModal">Submit</button>
+                            <button type="button" class="btn btn-default" id="submitOffer" data-dismiss="modal" data-toggle="modal" data-target="#answerModal" data-backdrop="static">Submit</button>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#createModal" id="createOffer">Create</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#createModal" id="createOffer" data-backdrop="static">Create</button>
                     </div>
                 </div>
             </div>
@@ -62,7 +80,6 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Your offer</h4>
                     </div>
                     <div class="modal-body">
@@ -74,11 +91,10 @@
                         <div class="remote answer">
                             <label>Remote Answer:</label>
                             <input id="remoteAnswer" type="text" />
-                            <button type="button" class="btn btn-default" id="submitAnswer" data-dismiss="modal">Submit</button>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+                        <button type="button" class="btn btn-primary" id="submitAnswer" data-dismiss="modal">Submit</button>
                     </div>
                 </div>
             </div>
@@ -88,7 +104,6 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title">Your answer</h4>
                     </div>
                     <div class="modal-body">
@@ -112,6 +127,7 @@
         <script type="text/javascript">
             
             var connection = new RTC();
+            var username = "USER";
             
             $("#text").keypress(function(event) {
                 if (event.which == 13) {
@@ -141,7 +157,7 @@
 
             $("#setUsername").click(function() {
                 if($("#username").val()) {
-                    connection.username = $("#username").val();
+                    username = $("#username").val();
                 }
             });
             
@@ -161,7 +177,19 @@
                 }
             });
             
-            $('#startModal').modal();
+            $(".modal").on("show.bs.modal", function(evt) {
+                $("main").css("-webkit-filter", "blur(2px)");
+                $("main").css("-moz-filter", "blur(2px)");
+                $("main").css("filter", "blur(2px)");
+            });
+            
+            $(".modal").on("hide.bs.modal", function(evt) {
+                $("main").css("-webkit-filter", "initial");
+                $("main").css("-moz-filter", "initial");
+                $("main").css("filter", "initial");
+            });
+            
+            $("#startModal").modal({backdrop: "static"});
         
         </script>
         
