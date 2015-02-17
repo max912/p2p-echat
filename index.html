@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+    
+        <title>p2p chat</title>
+        <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" type="text/css" href="css/style.css" />
+        <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="js/forge.min.js"></script>
+        <script type="text/javascript" src="js/adapter.js"></script>
+        <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <script type="text/javascript">
+            function copyToClipboard(text) {
+                window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
+            }
+        </script>
+        
+    </head>
+    
+    <body>
+
+        <div class="chat panel panel-default">
+            <div class="panel-body">
+                <div id="chatlog"></div>
+                <input id="text" type="text" />
+                <button type="button" class="btn btn-default" id="send">Send</button>
+            </div>
+        </div>
+        
+        <div class="username">
+            <label>Set username:</label>
+            <input id="username" type="text" />
+            <button type="button" class="btn btn-default" id="setUsername">Submit</button>
+        </div>
+        
+        
+        <div class="modal fade" id="startModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Start here</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>Paste here the offer you received or click the "Create" button.</p>
+                        <div class="remote offer">
+                            <label>Remote Offer:</label>
+                            <input id="remoteOffer" type="text" />
+                            <button type="button" class="btn btn-default" id="submitOffer" data-dismiss="modal" data-toggle="modal" data-target="#answerModal">Submit</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal" data-toggle="modal" data-target="#createModal" id="createOffer">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="createModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Your offer</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>This is your offer:</p>
+                        <div class="local offer">
+                            <input class="output" type="text" readonly />
+                        </div>
+                        <p>Paste here the answer you get, the click "Submit"</p>
+                        <div class="remote answer">
+                            <label>Remote Answer:</label>
+                            <input id="remoteAnswer" type="text" />
+                            <button type="button" class="btn btn-default" id="submitAnswer" data-dismiss="modal">Submit</button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modal fade" id="answerModal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Your answer</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>This is your answer:</p>
+                        <div class="local offer">
+                            <input class="output" type="text" readonly />
+                        </div>
+                        <p>Give it back to the caller</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Done</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
+        <script type="text/javascript" src="js/cipher.js"></script>
+        <script type="text/javascript" src="js/rtc.js"></script>
+        
+        <script type="text/javascript">
+            
+            var connection = new RTC();
+            
+            $("#text").keypress(function(event) {
+                if (event.which == 13) {
+                    event.preventDefault();
+                    $("#send").click();
+                    $("#text").focus();
+                }
+            });
+            
+            $("#createOffer").click(function() {
+                connection.createLocalOffer();
+            });
+
+            $("#submitOffer").click(function() {
+                var offer = $("#remoteOffer").val();
+                var offerDesc = new RTCSessionDescription(JSON.parse(offer));
+                print("Received remote offer", "text-info");
+                connection.handleOffer(offerDesc);
+            });
+
+            $("#submitAnswer").click(function() {
+                var answer = $("#remoteAnswer").val();
+                var answerDesc = new RTCSessionDescription(JSON.parse(answer));
+                print("Received remote answer", "text-info");
+                connection.handleAnswer(answerDesc);
+            });
+
+            $("#setUsername").click(function() {
+                if($("#username").val()) {
+                    connection.username = $("#username").val();
+                }
+            });
+            
+            $("#username").keypress(function(event) {
+                if (event.which == 13) {
+                    event.preventDefault();
+                    $("#setUsername").click();
+                }
+            });
+
+            $("#send").click(function() {
+                var text = $("#text").val();
+                if(text) {
+                    connection.sendMessage(text);
+                    print("<b>You: </b>" + text, "message");
+                    $("#text").val("");
+                }
+            });
+            
+            $('#startModal').modal();
+        
+        </script>
+        
+    </body>
+    
+    
+
+</html>
