@@ -120,13 +120,42 @@
             </div>
         </div>
         
+        <div class="modal fade" id="addUser">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">Your offer</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>This is your offer:</p>
+                        <div class="local offer">
+                            <input class="output" type="text" readonly />
+                        </div>
+                        <p>Paste here the answer you get, the click "Add"</p>
+                        <div class="remote answer">
+                            <label>Remote Answer:</label>
+                            <input id="addUserAnswer" type="text" />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="addUserAdd" data-dismiss="modal">Add</button>
+                        <button type="button" class="btn btn-default" id="addUserClose" data-dismiss="modal" >Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button id="addUserButton">Add</button>
         
         <script type="text/javascript" src="js/cipher.js"></script>
         <script type="text/javascript" src="js/rtc.js"></script>
         
         <script type="text/javascript">
+        
+            var connections = new Array();
+            connections[0] = new RTC();
             
-            var connection = new RTC();
             var username = "USER";
             
             $("#text").keypress(function(event) {
@@ -138,21 +167,21 @@
             });
             
             $("#createOffer").click(function() {
-                connection.createLocalOffer();
+                connections[0].createLocalOffer();
             });
 
             $("#submitOffer").click(function() {
                 var offer = $("#remoteOffer").val();
                 var offerDesc = new RTCSessionDescription(JSON.parse(offer));
                 print("Received remote offer", "text-info");
-                connection.handleOffer(offerDesc);
+                connections[0].handleOffer(offerDesc);
             });
 
             $("#submitAnswer").click(function() {
                 var answer = $("#remoteAnswer").val();
                 var answerDesc = new RTCSessionDescription(JSON.parse(answer));
                 print("Received remote answer", "text-info");
-                connection.handleAnswer(answerDesc);
+                connections[0].handleAnswer(answerDesc);
             });
 
             $("#setUsername").click(function() {
@@ -171,7 +200,9 @@
             $("#send").click(function() {
                 var text = $("#text").val();
                 if(text) {
-                    connection.sendMessage(text);
+                    for(c in connections) {
+                        connections[c].sendMessage(text);
+                    }
                     print("<b>You: </b>" + text, "message");
                     $("#text").val("");
                 }
@@ -190,7 +221,22 @@
             });
             
             $("#startModal").modal({backdrop: "static"});
-        
+            
+            $("#addUserButton").click(function() {
+                var con = new RTC();
+                con.createLocalOffer();
+                $("#addUser").modal({backdrop: "static"});
+                connections.push(con);
+            });
+            
+            $("#addUserAdd").click(function() {
+                var con = connections[1];
+                var answer = $("#addUserAnswer").val();
+                var answerDesc = new RTCSessionDescription(JSON.parse(answer));
+                print("Received remote answer", "text-info");
+                con.handleAnswer(answerDesc);
+            });
+            
         </script>
         
     </body>
