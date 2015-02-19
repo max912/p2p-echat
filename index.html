@@ -171,7 +171,7 @@
                 var rtc1 = new RTC();
                 rtc1.rid = 1;
                 connections[1] = rtc1;
-                rtc1.masterNodeSetup();
+                rtc1.setup(true);
                 rtc1.createLocalOffer();
             });
             
@@ -232,7 +232,7 @@
             
             $("#addUserButton").click(function() {
                 var rtc = new RTC();
-                rtc.masterNodeSetup();
+                rtc.setup(true);
                 rtc.createLocalOffer();
                 $("#addUser").modal({backdrop: "static"});
                 connections.push(rtc);

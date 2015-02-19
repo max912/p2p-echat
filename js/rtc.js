@@ -12,6 +12,13 @@ var RTC = function() {
     
     var context = this;
     
+    this.con.oniceconnectionstatechange = function(evt) {
+        if(evt.target.iceConnectionState == "disconnected") {
+            printMessage("Disconnected.", "text-info");
+            connections[context.rid] = null;
+        }
+    }
+    
     this.con.onicecandidate = function(evt) {
         if(evt.candidate == null) {
             $(".output").val(JSON.stringify(context.con.localDescription));
@@ -28,9 +35,6 @@ var RTC = function() {
             var request = JSON.parse(evt.data);
             context.parseRequest(request);
         };
-        context.dc.onclose = function(evt) {
-            printMessage("Disconnected.", "text-info");  
-        };
     };
     
 };
@@ -40,7 +44,8 @@ RTC.prototype.parseRequest = function(request) {
     this[request.type](request);
 };
 
-RTC.prototype.masterNodeSetup = function() {
+RTC.prototype.setup = function(b) {
+    var master = b;
     for(c in connections) {
         if(connections[c] == null) {
             this.id = c;
@@ -55,36 +60,14 @@ RTC.prototype.masterNodeSetup = function() {
             $("#send").prop('disabled', false);
             var request = new setId(context.id, null, connections.length - 1);
             context.dc.send(request.toJString());
-            connectAll(context.rid);
+            if(master) {
+                connectAll(context.rid);
+            }
         }
         var context = this;
         this.dc.onmessage = function(evt) {
             var request = JSON.parse(evt.data);            
             context.parseRequest(request);
-        };
-        this.dc.onclose = function(evt) {
-            printMessage("Disconnected.", "text-info");  
-        };
-    } catch(e) { 
-            printMessage("Connection error.", "text-err");
-        }
-}
-
-RTC.prototype.setup = function() {
-    try {
-        this.dc = this.con.createDataChannel("test", {"reliable": true});
-
-        this.dc.onopen = function(evt) {
-            printMessage("Connection estabilished.", "text-info");
-            $("#send").prop('disabled', false);
-        }
-        var context = this;
-        this.dc.onmessage = function(evt) {
-            var request = JSON.parse(evt.data);            
-            context.parseRequest(request);
-        };
-        this.dc.onclose = function(evt) {
-            printMessage("Disconnected.", "text-info");  
         };
     } catch(e) { 
             printMessage("Connection error.", "text-err");
@@ -93,7 +76,7 @@ RTC.prototype.setup = function() {
 
 RTC.prototype.createLocalOffer = function() {
     if(this.dc == null) {
-        this.setup();
+        this.setup(false);
     }
     var context = this;
     this.con.createOffer(function(desc) {
@@ -234,5 +217,6 @@ RTC.prototype.setId = function(request) {
     this.id = request.text;
     connections[this.id] = null;
     connections[request.from] = this;
+    this.rid = request.from;
     username = "User_" + this.id;
 }
