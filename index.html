@@ -148,15 +148,13 @@
             </div>
         </div>
         
-        <button type="button" class="btn btn-default" id="addUserButton" disabled>Add</button>
+        <button type="button" class="btn btn-default" id="addUserButton">Add</button>
         
         <script type="text/javascript" src="js/rtc.js"></script>
         
         <script type="text/javascript">
         
             var connections = new Array();
-            connections[0] = new RTC();
-            
             var username = "USER";
             
             $("#text").keypress(function(event) {
@@ -170,39 +168,19 @@
             $("#createOffer").click(function() {
                 username = "User_0";
                 connections[0] = null;
-                var con1 = new RTC();
-                con1.rid = 1;
-                connections[1] = con1;
-                connections[1].masterNode();
-                connections[1].createLocalOffer();
-                
-                $("#addUserButton").click(function() {
-                    var con = new RTC();
-                    con.masterNode();
-                    con.createLocalOffer();
-                    $("#addUser").modal({backdrop: "static"});
-                    connections.push(con);
-                    con.rid = connections.length - 1;
-                });
-                
-                $("#addUserAdd").click(function() {
-                    var con = connections[connections.length - 1];
-                    var answer = $("#addUserAnswer").val();
-                    $("#addUserAnswer").val("");
-                    var answerDesc = new RTCSessionDescription(JSON.parse(answer));
-                    printMessage("Received remote answer", "text-info");
-                    con.handleAnswer(answerDesc);
-                });
-                
-                $("#addUserButton").prop('disabled', false);
-                
+                var rtc1 = new RTC();
+                rtc1.rid = 1;
+                connections[1] = rtc1;
+                rtc1.masterNodeSetup();
+                rtc1.createLocalOffer();
             });
-
+            
             $("#submitOffer").click(function() {
+                var rtc = new RTC()
                 var offer = $("#remoteOffer").val();
                 var offerDesc = new RTCSessionDescription(JSON.parse(offer));
                 printMessage("Received remote offer", "text-info");
-                connections[0].handleOffer(offerDesc);
+                rtc.handleOffer(offerDesc);
             });
 
             $("#submitAnswer").click(function() {
@@ -229,8 +207,9 @@
                 var text = $("#text").val();
                 if(text) {
                     for(c in connections) {
-                        if(connections[c] != null)
+                        if(connections[c] != null) {
                             connections[c].sendMessage(text);
+                        }
                     }
                     printMessage("<b>You: </b>" + text, "message");
                     $("#text").val("");
@@ -250,6 +229,24 @@
             });
             
             $("#startModal").modal({backdrop: "static"});
+            
+            $("#addUserButton").click(function() {
+                var rtc = new RTC();
+                rtc.masterNodeSetup();
+                rtc.createLocalOffer();
+                $("#addUser").modal({backdrop: "static"});
+                connections.push(rtc);
+                rtc.rid = connections.length - 1;
+            });
+            
+            $("#addUserAdd").click(function() {
+                var rtc = connections[connections.length - 1];
+                var answer = $("#addUserAnswer").val();
+                $("#addUserAnswer").val("");
+                var answerDesc = new RTCSessionDescription(JSON.parse(answer));
+                printMessage("Received remote answer", "text-info");
+                rtc.handleAnswer(answerDesc);
+            });
             
             function connectAll(id) {
                 for(c in connections) {

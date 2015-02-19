@@ -5,8 +5,8 @@ var RTC = function() {
 
     this.con = new RTCPeerConnection(cfg, opt);
     this.dc = null;
-    this.id = null;
-    this.rid = null;
+    this.id = -1;
+    this.rid = 0;
     
     this.cipher = new Cipher();
     
@@ -40,8 +40,12 @@ RTC.prototype.parseRequest = function(request) {
     this[request.type](request);
 };
 
-RTC.prototype.masterNode = function() {
-    this.id = 0;
+RTC.prototype.masterNodeSetup = function() {
+    for(c in connections) {
+        if(connections[c] == null) {
+            this.id = c;
+        }
+    }
     var context = this;
     try {
         this.dc = this.con.createDataChannel("test", {"reliable": true});
@@ -49,7 +53,7 @@ RTC.prototype.masterNode = function() {
         this.dc.onopen = function(evt) {
             printMessage("Connection estabilished.", "text-info");
             $("#send").prop('disabled', false);
-            var request = new setId(username, null, connections.length - 1);
+            var request = new setId(context.id, null, connections.length - 1);
             context.dc.send(request.toJString());
             connectAll(context.rid);
         }
@@ -159,6 +163,7 @@ RTC.prototype.getOffer = function(request) {
     var cc = new RTC();
     connections[request.from] = cc;
     cc.setup();
+    cc.id = this.id;
     
     var id = request.from;
     var context = this;
@@ -184,6 +189,7 @@ RTC.prototype.getOffer = function(request) {
 RTC.prototype.addOffer = function(request) {
     var cc = new RTC();
     connections[request.from] = cc;
+    cc.id = request.id;
     
     var offer = new RTCSessionDescription(JSON.parse(request.text));
     cc.con.setRemoteDescription(offer);
@@ -226,5 +232,7 @@ RTC.prototype.rAnswer = function(request) {
 
 RTC.prototype.setId = function(request) {
     this.id = request.text;
+    connections[this.id] = null;
+    connections[request.from] = this;
     username = "User_" + this.id;
 }
