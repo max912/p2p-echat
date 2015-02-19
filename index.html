@@ -11,6 +11,8 @@
         <script type="text/javascript" src="js/forge.min.js"></script>
         <script type="text/javascript" src="js/adapter.js"></script>
         <script type="text/javascript" src="js/bootstrap.min.js"></script>
+        <script type="text/javascript" src="js/cipher.js"></script>
+        <script type="text/javascript" src="js/requests.js"></script>
         <script type="text/javascript">
             function copyToClipboard(text) {
                 window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
@@ -29,7 +31,7 @@
                 return result;
             };
 
-            function print(message, message_type) {
+            function printMessage(message, message_type) {
                 document.getElementById("chatlog").innerHTML += "<p class=\"" + message_type + "\">" + "[" + getTimestamp() + "] " + message + "</p>";
                 $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
             };
@@ -44,7 +46,7 @@
                 <div class="panel-body">
                     <div id="chatlog"></div>
                     <input id="text" type="text" />
-                    <button type="button" class="btn btn-default" id="send">Send</button>
+                    <button type="button" class="btn btn-default" id="send" disabled>Send</button>
                 </div>
             </div>
             
@@ -146,9 +148,8 @@
             </div>
         </div>
         
-        <button id="addUserButton">Add</button>
+        <button id="addUserButton" disabled>Add</button>
         
-        <script type="text/javascript" src="js/cipher.js"></script>
         <script type="text/javascript" src="js/rtc.js"></script>
         
         <script type="text/javascript">
@@ -167,21 +168,48 @@
             });
             
             $("#createOffer").click(function() {
-                connections[0].createLocalOffer();
+                username = "User_0";
+                connections[0] = null;
+                var con1 = new RTC();
+                con1.rid = 1;
+                connections[1] = con1;
+                connections[1].masterNode();
+                connections[1].createLocalOffer();
+                
+                $("#addUserButton").click(function() {
+                    var con = new RTC();
+                    con.masterNode();
+                    con.createLocalOffer();
+                    $("#addUser").modal({backdrop: "static"});
+                    connections.push(con);
+                    con.rid = connections.length - 1;
+                });
+                
+                $("#addUserAdd").click(function() {
+                    var con = connections[connections.length - 1];
+                    var answer = $("#addUserAnswer").val();
+                    $("#addUserAnswer").val("");
+                    var answerDesc = new RTCSessionDescription(JSON.parse(answer));
+                    printMessage("Received remote answer", "text-info");
+                    con.handleAnswer(answerDesc);
+                });
+                
+                $("#addUserButton").prop('disabled', false);
+                
             });
 
             $("#submitOffer").click(function() {
                 var offer = $("#remoteOffer").val();
                 var offerDesc = new RTCSessionDescription(JSON.parse(offer));
-                print("Received remote offer", "text-info");
+                printMessage("Received remote offer", "text-info");
                 connections[0].handleOffer(offerDesc);
             });
 
             $("#submitAnswer").click(function() {
                 var answer = $("#remoteAnswer").val();
                 var answerDesc = new RTCSessionDescription(JSON.parse(answer));
-                print("Received remote answer", "text-info");
-                connections[0].handleAnswer(answerDesc);
+                printMessage("Received remote answer", "text-info");
+                connections[1].handleAnswer(answerDesc);
             });
 
             $("#setUsername").click(function() {
@@ -201,9 +229,10 @@
                 var text = $("#text").val();
                 if(text) {
                     for(c in connections) {
-                        connections[c].sendMessage(text);
+                        if(connections[c] != null)
+                            connections[c].sendMessage(text);
                     }
-                    print("<b>You: </b>" + text, "message");
+                    printMessage("<b>You: </b>" + text, "message");
                     $("#text").val("");
                 }
             });
@@ -222,20 +251,13 @@
             
             $("#startModal").modal({backdrop: "static"});
             
-            $("#addUserButton").click(function() {
-                var con = new RTC();
-                con.createLocalOffer();
-                $("#addUser").modal({backdrop: "static"});
-                connections.push(con);
-            });
-            
-            $("#addUserAdd").click(function() {
-                var con = connections[1];
-                var answer = $("#addUserAnswer").val();
-                var answerDesc = new RTCSessionDescription(JSON.parse(answer));
-                print("Received remote answer", "text-info");
-                con.handleAnswer(answerDesc);
-            });
+            function connectAll(id) {
+                for(c in connections) {
+                    if(c != id && connections[c] != null) {
+                        connections[c].rGetOffer(id);
+                    }
+                }
+            }
             
         </script>
         
