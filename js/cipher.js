@@ -1,12 +1,7 @@
 var Cipher = function() {
     
     this.passphrase = "password"
-
-    var md = forge.md.sha256.create();
-    md.update("First IV string");
-
-    this.iv = md.digest().toHex();
-    //var key = forge.random.getBytesSync(32);
+    this.iv = forge.random.getBytesSync(32);
     this.key = unescape("%1BR%80R%D7%C8dn%9A%F4%18%09%E1%AD%E6%DD%C4%D9%C3%B4k2O%D9%BAV%0F%E3a%B4l%8D");
 
     this.riv = this.iv;

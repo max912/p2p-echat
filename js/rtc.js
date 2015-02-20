@@ -110,13 +110,11 @@ RTC.prototype.sendMessage = function(text) {
     var txt = this.cipher.encrypt(text);
     txt = encodeURI(txt);
     
-    var niv = forge.random.getBytesSync(32);
-    var nie = encodeURI(this.cipher.encrypt(encodeURI(niv)));
-            
-    this.cipher.iv = niv;
-    
-    var request = new chatMsg(username, null, txt, nie);
+    var request = new chatMsg(username, null, txt, encodeURI(this.cipher.iv));
     this.dc.send(request.toJString());
+    
+    var niv = forge.random.getBytesSync(32);
+    this.cipher.iv = niv;
 };
 
 RTC.prototype.rGetOffer = function(id) {
@@ -136,10 +134,9 @@ RTC.prototype.rAddAnswer = function(answer, from) {
 
 RTC.prototype.chatMsg = function(request) {
     var msg = request.text;
-    printMessage("<b>" + request.from + ": </b>" + this.cipher.decrypt(decodeURI(msg)), "message");
+    this.cipher.riv = decodeURI(request.n);
     
-    var niv = request.n;
-    this.cipher.riv = decodeURI(this.cipher.decrypt(decodeURI(niv)));
+    printMessage("<b>" + request.from + ": </b>" + this.cipher.decrypt(decodeURI(msg)), "message");
 };
 
 RTC.prototype.getOffer = function(request) {
