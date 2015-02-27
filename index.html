@@ -35,11 +35,13 @@
             function printMessage(user, message, message_type) {
                 var p = document.createElement("p");
                 p.className = message_type;
-                var b = document.createElement("b");
-                b.textContent = user;
+                if(user) {
+                    var b = document.createElement("b");
+                    b.textContent = user;
+                    p.appendChild(b);
+                }
                 var span = document.createElement("span");
                 span.textContent = "[" + getTimestamp() + "]" + message;
-                p.appendChild(b);
                 p.appendChild(span);
                 document.getElementById("chatlog").appendChild(p);
                 $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
@@ -190,14 +192,14 @@
                 var rtc = new RTC()
                 var offer = $("#remoteOffer").val();
                 var offerDesc = new RTCSessionDescription(JSON.parse(offer));
-                printMessage("Received remote offer", "text-info");
+                printMessage(null, "Received remote offer", "text-info");
                 rtc.handleOffer(offerDesc);
             });
 
             $("#submitAnswer").click(function() {
                 var answer = $("#remoteAnswer").val();
                 var answerDesc = new RTCSessionDescription(JSON.parse(answer));
-                printMessage("Received remote answer", "text-info");
+                printMessage(null, "Received remote answer", "text-info");
                 connections[1].handleAnswer(answerDesc);
             });
 
@@ -255,7 +257,7 @@
                 var answer = $("#addUserAnswer").val();
                 $("#addUserAnswer").val("");
                 var answerDesc = new RTCSessionDescription(JSON.parse(answer));
-                printMessage("Received remote answer", "text-info");
+                printMessage(null, "Received remote answer", "text-info");
                 rtc.handleAnswer(answerDesc);
             });
             
