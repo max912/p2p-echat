@@ -36,7 +36,7 @@
                 var p = document.createElement("p");
                 p.className = message_type;
                 p.textContent = "[" + getTimestamp() + "]" + message;
-                document.getElementById("chatlog").innerHTML += p;
+                document.getElementById("chatlog").appendChild(p);
                 $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
             };
         </script>
