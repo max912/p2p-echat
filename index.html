@@ -36,11 +36,11 @@
                 var p = document.createElement("p");
                 p.className = message_type;
                 var timestamp = document.createElement("span");
-                timestamp.textContent = "[" + getTimestamp() + "]";
+                timestamp.textContent = "[" + getTimestamp() + "] ";
                 p.appendChild(timestamp);
                 if(user) {
                     var b = document.createElement("b");
-                    b.textContent = user;
+                    b.textContent = user + ": ";
                     p.appendChild(b);
                 }
                 var span = document.createElement("span");
