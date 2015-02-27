@@ -35,13 +35,16 @@
             function printMessage(user, message, message_type) {
                 var p = document.createElement("p");
                 p.className = message_type;
+                var timestamp = document.createElement("span");
+                timestamp.textContent = "[" + getTimestamp() + "]";
+                p.appendChild(timestamp);
                 if(user) {
                     var b = document.createElement("b");
                     b.textContent = user;
                     p.appendChild(b);
                 }
                 var span = document.createElement("span");
-                span.textContent = "[" + getTimestamp() + "]" + message;
+                span.textContent = message;
                 p.appendChild(span);
                 document.getElementById("chatlog").appendChild(p);
                 $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
