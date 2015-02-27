@@ -14,7 +14,7 @@ var RTC = function() {
     
     this.con.oniceconnectionstatechange = function(evt) {
         if(evt.target.iceConnectionState == "disconnected") {
-            printMessage("Disconnected.", "text-info");
+            printMessage(null, "Disconnected.", "text-info");
             connections[context.rid] = null;
         }
     }
@@ -58,7 +58,7 @@ var RTC = function() {
     this.con.ondatachannel = function(evt) {
         context.dc = evt.channel || evt;
         context.dc.onopen = function(evt) {
-            printMessage("Connection estabilished.", "text-info");
+            printMessage(null, "Connection estabilished.", "text-info");
             $("#send").prop('disabled', false);
         };
         context.dc.onmessage = function(evt) {
@@ -86,7 +86,7 @@ RTC.prototype.setup = function(b) {
         this.dc = this.con.createDataChannel("test", {"reliable": true});
 
         this.dc.onopen = function(evt) {
-            printMessage("Connection estabilished.", "text-info");
+            printMessage(null, "Connection estabilished.", "text-info");
             $("#send").prop('disabled', false);
             var request = new setId(context.id, null, connections.length - 1);
             context.dc.send(request.toJString());
@@ -100,7 +100,7 @@ RTC.prototype.setup = function(b) {
             context.parseRequest(request);
         };
     } catch(e) { 
-            printMessage("Connection error.", "text-err");
+            printMessage(null, "Connection error.", "text-err");
         }
 };
 
@@ -112,9 +112,9 @@ RTC.prototype.createLocalOffer = function() {
     this.con.createOffer(function(desc) {
         context.con.setLocalDescription(desc, function() {});
         context.desc = desc;
-        printMessage("Created local offer.", "text-info");
+        printMessage(null, "Created local offer.", "text-info");
     }, function () {
-            printMessage("Couldn't create offer", "text-err");
+            printMessage(null, "Couldn't create offer", "text-err");
         }
     );
 };
@@ -123,11 +123,11 @@ RTC.prototype.handleOffer = function(offer) {
     this.con.setRemoteDescription(offer);
     var context = this;
     this.con.createAnswer(function(answer) {
-        printMessage("Created local answer", "text-info");
+        printMessage(null, "Created local answer", "text-info");
         context.con.setLocalDescription(answer);
         context.answer = answer;
     }, function() { 
-            printMessage("Couldn't create answer.", "text-err");
+            printMessage(nul, "Couldn't create answer.", "text-err");
         }
     );
 };
@@ -188,9 +188,9 @@ RTC.prototype.getOffer = function(request) {
     cc.con.createOffer(function(desc) {
         cc.con.setLocalDescription(desc, function() {});
         cc.desc = desc;
-        printMessage("Created local offer.", "text-info");
+        printMessage(null, "Created local offer.", "text-info");
     }, function () {
-            printMessage("Couldn't create offer", "text-err");
+            printMessage(null, "Couldn't create offer", "text-err");
         }
     );
 
@@ -215,10 +215,10 @@ RTC.prototype.addOffer = function(request) {
     };
     
     cc.con.createAnswer(function(answer) {
-        printMessage("Created local answer", "text-info");
+        printMessage(null, "Created local answer", "text-info");
         cc.con.setLocalDescription(answer);
     }, function() { 
-            printMessage("Couldn't create answer.", "text-err");
+            printMessage(null, "Couldn't create answer.", "text-err");
         }
     );
     
