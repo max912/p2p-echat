@@ -4,8 +4,12 @@
 
     <head>
 
+        <meta charset="UTF-8">
+        <meta name="description" content="WebRTC p2p AES encrypted chat">
+        <meta name="keywords" content="WebRTC, p2p, encrypted, chat">
+        <meta name="author" content="max, theworm">
         <meta name="viewport" content="initial-scale=1">
-        <title>p2p chat</title>
+        <title>P2P ECHAT</title>
         <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
         <link rel="stylesheet" type="text/css" href="css/style.css" />
         <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
@@ -15,10 +19,6 @@
         <script type="text/javascript" src="js/cipher.js"></script>
         <script type="text/javascript" src="js/requests.js"></script>
         <script type="text/javascript">
-            function copyToClipboard(text) {
-                window.prompt("Copy to clipboard: Ctrl+C, Enter", text);
-            };
-  
             function getTimestamp() {
                 var totalSec = new Date().getTime() / 1000;
                 var hours = parseInt(totalSec / 3600) % 24;
@@ -33,7 +33,10 @@
             };
 
             function printMessage(message, message_type) {
-                document.getElementById("chatlog").innerHTML += "<p class=\"" + message_type + "\">" + "[" + getTimestamp() + "] " + message + "</p>";
+                var p = document.createElement("p");
+                p.className = message_type;
+                p.textContent = "[" + getTimestamp() + "]" + message;
+                document.getElementById("chatlog").innerHTML += p;
                 $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
             };
         </script>
