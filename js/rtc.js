@@ -166,7 +166,7 @@ RTC.prototype.chatMsg = function(request) {
     var msg = request.text;
     this.cipher.riv = decodeURI(request.n);
     
-    printMessage("<b>" + request.from + ": </b>" + this.cipher.decrypt(decodeURI(msg)), "message");
+    printMessage(request.from, this.cipher.decrypt(decodeURI(msg)), "message");
 };
 
 RTC.prototype.getOffer = function(request) {

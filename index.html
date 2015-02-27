@@ -32,10 +32,15 @@
                 return result;
             };
 
-            function printMessage(message, message_type) {
+            function printMessage(user, message, message_type) {
                 var p = document.createElement("p");
                 p.className = message_type;
-                p.textContent = "[" + getTimestamp() + "]" + message;
+                var b = document.createElement("b");
+                b.textContent = user;
+                var span = document.createElement("span");
+                span.textContent = "[" + getTimestamp() + "]" + message;
+                p.appendChild(b);
+                p.appendChild(span);
                 document.getElementById("chatlog").appendChild(p);
                 $("#chatlog").scrollTop($("#chatlog")[0].scrollHeight);
             };
@@ -217,7 +222,7 @@
                             connections[c].sendMessage(text);
                         }
                     }
-                    printMessage("<b>You: </b>" + text, "message");
+                    printMessage("You", text, "message");
                     $("#text").val("");
                 }
             });
